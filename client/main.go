@@ -7,7 +7,6 @@
 package main
 
 import (
-	"crypto/rand"
 	"encoding/binary"
 	"fmt"
 	"io"
@@ -42,7 +41,7 @@ func main() {
 		log.Fatalf("讀取 %s 失敗（server 端要先跑一次，把公鑰寫出來）: %v", pubKeyFile, err)
 	}
 
-	// ↓↓↓ 這一步，在你真正的設計裡應該換成：
+	// ↓↓↓ Real design will be：
 	//   1. 查鏈上 hash commitment
 	//   2. 比對這份 pubBytes 的 hash 是否吻合
 	//   3. 吻合才繼續往下 Unmarshal、拿去 handshake
@@ -53,10 +52,10 @@ func main() {
 	}
 	fmt.Printf("[client] 已載入 server 靜態公鑰（%d bytes）\n", len(pubBytes))
 
-	seecGenRand, err := seec.GenKeyPRPAES(rand.Reader, 256)
-	if err != nil {
-		log.Fatalf("seec.GenKeyPRPAES: %v", err)
-	}
+	//seecGenRand, err := seec.GenKeyPRPAES(rand.Reader, 256)
+	//if err != nil {
+	//	log.Fatalf("seec.GenKeyPRPAES: %v", err)
+	//}
 
 	clientCfg := &nyquist.HandshakeConfig{
 		Protocol: protocol,
@@ -105,7 +104,7 @@ func main() {
 
 	// 驗證：這次認證到的公鑰，確實是我們一開始信任的那把
 	if !status.KEM.RemoteStatic.Equal(remoteStatic) {
-		log.Fatalf("異常：認證到的公鑰跟預期不符")
+		log.Fatalf("異常：認證到的公鑰跟預期不符") // 這裡的 remoteStatic 是一開始從檔案讀來的,nothing is done basically
 	}
 
 	// ---- transport 階段：CipherStates[0]=送, [1]=收 ----
